@@ -8,6 +8,10 @@ See README [here](https://github.com/Itera/ariot2018/tree/master/micropython).
 
 See README [here](https://github.com/Itera/ariot2018/tree/master/sanity/ariot-2018).
 
+## Raspberry Pi Coordinator
+
+See README [here](./raspi/README.md).
+
 ## Table Controller
 
 See README [here](./tableController/README.md).
