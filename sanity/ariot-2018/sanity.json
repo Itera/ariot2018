@@ -1,0 +1,27 @@
+{
+  "root": true,
+  "project": {
+    "name": "ariot2018"
+  },
+  "api": {
+    "projectId": "k06fkcmv",
+    "dataset": "production"
+  },
+  "plugins": [
+    "@sanity/base",
+    "@sanity/components",
+    "@sanity/default-layout",
+    "@sanity/default-login",
+    "@sanity/desk-tool",
+    "@sanity/google-maps-input",
+    "dashboard",
+    "@sanity/vision",
+    "logo"
+  ],
+  "parts": [
+    {
+      "name": "part:@sanity/base/schema",
+      "path": "./schemas/schema.js"
+    }
+  ]
+}

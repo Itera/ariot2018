@@ -1,0 +1,32 @@
+{
+  "name": "ariot2018",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "package.json",
+  "author": "Joakim Myrvoll <joakimmyrvoll+github@gmail.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "sanity start",
+    "test": "sanity check"
+  },
+  "keywords": [
+    "sanity"
+  ],
+  "dependencies": {
+    "@sanity/base": "^0.126.2",
+    "@sanity/components": "^0.126.2",
+    "@sanity/core": "^0.126.2",
+    "@sanity/default-layout": "^0.126.3",
+    "@sanity/default-login": "^0.126.0",
+    "@sanity/desk-tool": "^0.126.2",
+    "@sanity/google-maps-input": "^0.126.2",
+    "@sanity/vision": "^0.126.2",
+    "react": "^15.6",
+    "react-dom": "^15.6",
+    "react-icons": "^2.2.5",
+    "date-fns": "latest",
+    "@sanity/client": "latest"
+  },
+  "devDependencies": {}
+}
