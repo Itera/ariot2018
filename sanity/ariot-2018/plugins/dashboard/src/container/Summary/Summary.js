@@ -15,7 +15,7 @@ class Summary extends React.Component {
   }
 
   render() {
-    console.log('USER LIST', this.state.summary);
+    console.log('SUMMARY', this.state.summary);
 
     return (
       <div className={styles.summary}>
