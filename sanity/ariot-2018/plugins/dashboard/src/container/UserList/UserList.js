@@ -2,6 +2,7 @@ import React from 'react'
 import {fetchPersons} from "../../forces/request";
 import styles from './UserList.css'
 import User from "../../components/User/User";
+import { List, ListItem } from 'material-ui';
 
 class UserList extends React.Component {
   constructor(props) {
@@ -17,19 +18,19 @@ class UserList extends React.Component {
 
   render() {
     return (
-      <div className={styles["user-list"]}>
-        {
-          this.state.users.map(user =>
-            <User
-              key={user._id}
-              name={user.name}
-              tempPref={user.tempPreferences}
-              tablePref={user.tablePreferences}
-              hours={user.hours}
-            />
-          )
-        }
-      </div>
+        <div className={styles["user-list"]}>
+          {
+            this.state.users.map(user =>
+                <User
+                  key={user._id}
+                  name={user.name}
+                  tempPref={user.tempPreferences}
+                  tablePref={user.tablePreferences}
+                  hours={user.hours}
+                />
+            )
+          }
+        </div>
     )
   }
 }

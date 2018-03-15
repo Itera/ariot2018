@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './User.css'
+import { Card, CardHeader, CardText } from 'material-ui';
 
 const calcTime = (range) => {
   let sum = 0;
@@ -21,16 +22,22 @@ const User = ({name, tempPref, tablePref, hours}) => {
   const {heightSitting, heightStanding} = tablePref;
 
   return (
-    <div className={styles.user}>
-      <div className={styles.title}>{name}</div>
-      <p>Temp. preference: {tempPref} &deg;C</p>
-      <div>
-        <p className={styles.underline}>Table preferences:</p>
-        <p>Sitting: {heightSitting} cm.</p>
-        <p>Standing: {heightStanding} cm.</p>
-      </div>
-      <p>Hours: {calcTime(hours)}</p>
-    </div>
+    <Card>
+      <CardHeader
+        title={name}
+        subtitle={calcTime(hours) + " hours"}
+        actAsExpander={true}
+        showExpandableButton={true}
+      />
+    <CardText expandable={true}>
+          <p>
+            <strong>Temp. preference:</strong> {tempPref} &deg;C<br/>
+            <strong>Sitting:</strong> {heightSitting} cm <br/>
+            <strong>Standing:</strong> {heightStanding} cm <br/>
+            <strong>Hours:</strong> {calcTime(hours)}
+          </p>
+      </CardText>
+    </Card>
   )
 };
 
