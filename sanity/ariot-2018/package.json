@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "@sanity/base": "^0.126.2",
+    "@sanity/client": "latest",
     "@sanity/components": "^0.126.2",
     "@sanity/core": "^0.126.2",
     "@sanity/default-layout": "^0.126.3",
@@ -22,11 +23,13 @@
     "@sanity/desk-tool": "^0.126.2",
     "@sanity/google-maps-input": "^0.126.2",
     "@sanity/vision": "^0.126.2",
-    "react": "^15.6",
-    "react-dom": "^15.6",
-    "react-icons": "^2.2.5",
+    "chart.js": "^2.7.2",
     "date-fns": "latest",
-    "@sanity/client": "latest"
+    "material-ui": "^0.20.0",
+    "react": "^15.6",
+    "react-chartjs-2": "^2.7.0",
+    "react-dom": "^15.6",
+    "react-icons": "^2.2.5"
   },
   "devDependencies": {}
 }
