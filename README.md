@@ -8,6 +8,6 @@ The idea revolves around an electric up/down-desk with an RFID reader. A user ca
 
 ![project](./img/project.png)
 
-Our team is from Itera, and consists of 6 members: Thor-Martin, Øyvind, Lars-Erik, Joachim, Kristoffer and Annie (from left to right).
+Our team is from Itera, and consists of 6 members: Thor-Martin, Øyvind, Lars-Erik, Joakim, Kristoffer and Annie (from left to right).
 
 ![team](./img/team.jpg)
