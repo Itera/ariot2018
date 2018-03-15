@@ -15,8 +15,7 @@
     "@sanity/desk-tool",
     "@sanity/google-maps-input",
     "dashboard",
-    "@sanity/vision",
-    "logo"
+    "@sanity/vision"
   ],
   "parts": [
     {
