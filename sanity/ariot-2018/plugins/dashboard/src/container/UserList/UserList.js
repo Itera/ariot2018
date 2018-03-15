@@ -16,11 +16,8 @@ class UserList extends React.Component {
   }
 
   render() {
-    console.log('USER LIST', this.state.users);
-
     return (
       <div className={styles["user-list"]}>
-        <p>Dashboard is coming here (List of users).</p>
         {
           this.state.users.map(user =>
             <User

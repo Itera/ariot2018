@@ -5,7 +5,14 @@ import styles from './Summary.css'
 class Summary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {summary: []};
+    this.state = {
+      summary: {
+        users: null,
+        tempPreferences: null,
+        tablePreferencesStanding: null,
+        tablePreferencesSitting: null,
+      }
+    };
   }
 
   componentDidMount() {
@@ -14,17 +21,20 @@ class Summary extends React.Component {
     });
   }
 
+  avg(arr){
+    const reducer = (accumulator, currentValue) => accumulator + currentValue;
+    return arr && arr.reduce(reducer)/arr.length;
+  }
+
   render() {
-    console.log('SUMMARY', this.state.summary);
+    const {users, tempPreferences, tablePreferencesStanding, tablePreferencesSitting} = this.state.summary;
 
     return (
       <div className={styles.summary}>
-        <p>Summary.</p>
-        {
-          this.state.summary.map(info =>
-            <p>{info.name}</p>
-          )
-        }
+        <div>Number of users: {users}</div>
+        <div>Average temperature preference: {this.avg(tempPreferences)} &deg;C</div>
+        <div>Average standing height: {this.avg(tablePreferencesStanding)} cm</div>
+        <div>Average sitting height: {this.avg(tablePreferencesSitting)} cm</div>
       </div>
     )
   }

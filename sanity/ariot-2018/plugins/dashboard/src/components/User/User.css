@@ -3,3 +3,11 @@
   margin: 5px;
   padding: 5px
 }
+
+.table-pref {
+  text-decoration: underline;
+}
+
+.title {
+  font-size: 1.5rem;
+}

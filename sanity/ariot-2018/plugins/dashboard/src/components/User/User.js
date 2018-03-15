@@ -6,9 +6,11 @@ const User = ({name, tempPref, tablePref}) => {
 
   return (
     <div className={styles.user}>
-      <p>{name}</p>
-      <p>Temp. preference: {tempPref}</p>
-      <p>Table preferences:</p>
+      <div className={styles.title}>{name}</div>
+      <p>Temp. preference: {tempPref} &deg;C</p>
+      <div className={styles["table-pref"]}>
+        Table preferences:
+      </div>
       <p>Sitting: {heightSitting} cm.</p>
       <p>Standing: {heightStanding} cm.</p>
     </div>
