@@ -1,3 +1,14 @@
+# Getting started
+
+## Running NodeMCU microcontrollers
+
+See README [here](https://github.com/Itera/ariot2018/tree/master/micropython).
+
+## Running Sanity CMS
+
+See README [here](https://github.com/Itera/ariot2018/tree/master/sanity/ariot-2018).
+
+
 # Great place to workSPACE
 
 Are you tired of free seating? Are you sick of coming to your desk to find everything out of place because someone else has been using it?! Welcome to the greatest place to work(SPACE)!
