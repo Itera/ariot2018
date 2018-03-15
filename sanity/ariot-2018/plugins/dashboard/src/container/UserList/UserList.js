@@ -25,6 +25,7 @@ class UserList extends React.Component {
               name={user.name}
               tempPref={user.tempPreferences}
               tablePref={user.tablePreferences}
+              hours={user.hours}
             />
           )
         }

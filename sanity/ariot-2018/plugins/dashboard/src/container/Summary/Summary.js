@@ -23,7 +23,7 @@ class Summary extends React.Component {
 
   avg(arr){
     const reducer = (accumulator, currentValue) => accumulator + currentValue;
-    return arr && arr.reduce(reducer)/arr.length;
+    return arr && (arr.reduce(reducer)/arr.length).toFixed(2);
   }
 
   render() {
