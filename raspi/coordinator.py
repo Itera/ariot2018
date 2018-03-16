@@ -3,6 +3,8 @@
 from threading import Thread, Event
 from serial import Serial
 from Queue import Queue
+from grovepi import *
+from grove_rgb_lcd import *
 import time
 import sys
 import requests
