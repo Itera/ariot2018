@@ -65,10 +65,12 @@ def event_received(card_id, state):
         query = "*[_type == 'person' && id == '{}']".format(card_id)
         response = make_get(query)
         if response.status_code != 200 or len(response.json().get('result')) == 0:
-            print('No data for card')
+            print('No data for card' + card_id)
             return
         query_result = response.json().get('result')[0]
         if query_result is not None:
+            setRGB(108, 180, 110)
+            setText('Hello ' + query_result.get('name') + '! :)')
             state.log_in(query_result)
             tc_event_queue.put(query_result.get('tablePreferences').get('heightSitting'))
     else:
@@ -84,6 +86,7 @@ def event_received(card_id, state):
                             "insert" : {
                                 "after": "hours[-1]",
                                 "items": [{
+                                    "_type": "timeRange",
                                     "from": from_timestamp.isoformat(),
                                     "to": to_timestamp.isoformat()
                                 }]
@@ -101,6 +104,7 @@ def event_received(card_id, state):
                             "query": "*[_type == 'person' && id == '{}']".format(card_id),
                             "setIfMissing": {
                                 "hours": [{
+                                    "_type": "timeRange",
                                     "from": from_timestamp.isoformat(),
                                     "to": to_timestamp.isoformat()
                                 }]
