@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 
-from threading import Thread, Event
-from serial import Serial
+from threading import Thread, Event, Timer
 from Queue import Queue
-from grovepi import *
-from grove_rgb_lcd import *
 import time
 import sys
-import requests
 import datetime
 import json
 
+# Special libraries
+from serial import Serial
+from grovepi import *
+from grove_rgb_lcd import *
+import requests
+
 SANITY_API_BASE = "https://k06fkcmv.api.sanity.io/v1/data/"
 SANITY_API_KEY_FILE = 'sanity'
+
+# Seconds in each position before automatically changing
+TABLE_LOWER_TIME = 120
+TABLE_UPPER_TIME = 60
 
 card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
@@ -28,10 +34,10 @@ class DeskState(object):
         self.logged_in = True
         self.logged_in_timestamp = datetime.datetime.now()
         print(sanity_data.get('id') + ' logged in')
-        
+
     def log_out(self):
         self.logged_in = False
-        self.logged_in_timestamp = None 
+        self.logged_in_timestamp = None
         print(self.sanity_data.get('id') + ' logged out')
         self.sanity_data = None
 
@@ -42,7 +48,7 @@ def read_api_key():
     except:
         print('Could not read sanity API key')
         sys.exit(0)
-        
+
 SANITY_API_KEY = read_api_key()
 
 def make_auth_header():
@@ -62,6 +68,16 @@ def make_post(body):
         headers=make_auth_header()
     )
 
+def table_lower_position(table_preferences):
+    print("Go to lower pos")
+    tc_event_queue.put(table_preferences.get('heightStanding'))
+    Timer(TABLE_LOWER_TIME, table_upper_position, table_preferences).start()
+
+def table_upper_position(table_preferences):
+    print("Go to upper pos")
+    tc_event_queue.put(table_preferences.get('heightSitting'))
+    Timer(TABLE_UPPER_TIME, table_lower_position, table_preferences).start()
+
 def event_received(card_id, state):
     if not state.logged_in:
         query = "*[_type == 'person' && id == '{}']".format(card_id)
@@ -74,7 +90,7 @@ def event_received(card_id, state):
             setRGB(108, 180, 110)
             setText('Hello ' + query_result.get('name') + '! :)')
             state.log_in(query_result)
-            tc_event_queue.put(query_result.get('tablePreferences').get('heightSitting'))
+            table_lower_position(query_result.get('tablePreferences'))
     else:
         from_timestamp = state.logged_in_timestamp
         to_timestamp =  datetime.datetime.now()
@@ -137,7 +153,7 @@ class TableControllerWriter(Thread):
         self.queue = queue
         self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
-        
+
     def run(self):
         while not self.shutdown_flag.is_set():
             if not self.queue.empty():
@@ -163,6 +179,5 @@ def main():
         reader.join()
         tc_writer.join()
         print('\n Shutting down')
-
 
 main()
