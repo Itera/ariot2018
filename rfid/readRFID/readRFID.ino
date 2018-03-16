@@ -16,7 +16,7 @@ void setup() {
 
 void loop() {
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
-    printIdmfrc522.uid.uidByte);
+    printId(mfrc522.uid.uidByte);
     delay(1000);
   }
 }
@@ -25,7 +25,7 @@ void loop() {
 void printId(byte uid[10]) {
   for(int i = 0; i < sizeof(uid); i++)
   {
-    Serial.print(uid[i]);
+    Serial.print(uid[i], HEX);
   }
   Serial.println();
 }
