@@ -1,12 +1,10 @@
 import React from 'react'
-import logo from './logo.svg'
 
 const logoStyle = {
-    width: '100%',
-    padding: '0',
-    margin: '0',
+  textAlign: "center",
+  fontSize: "1.5em",
 };
 
-const Logo = () => <img src={logo} style={logoStyle}/>;
+const Logo = () => <div style={logoStyle}>Itera</div>;
 
 module.exports = Logo;

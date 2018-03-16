@@ -16,22 +16,20 @@ class UserList extends React.Component {
   }
 
   render() {
-    console.log('USER LIST', this.state.users);
-
     return (
-      <div className={styles["user-list"]}>
-        <p>Dashboard is coming here (List of users).</p>
-        {
-          this.state.users.map(user =>
-            <User
-              key={user._id}
-              name={user.name}
-              tempPref={user.tempPreferences}
-              tablePref={user.tablePreferences}
-            />
-          )
-        }
-      </div>
+        <div className={styles["user-list"]}>
+          {
+            this.state.users.map(user =>
+                <User
+                  key={user._id}
+                  name={user.name}
+                  tempPref={user.tempPreferences}
+                  tablePref={user.tablePreferences}
+                  hours={user.hours}
+                />
+            )
+          }
+        </div>
     )
   }
 }

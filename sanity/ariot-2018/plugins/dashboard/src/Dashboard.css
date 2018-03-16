@@ -1,7 +1,86 @@
-.dashboard {
-  padding: 10px;
+.container {
+    padding: 22px;
 }
 
-.logo {
-  width: 20%;
+.container h1 {
+    margin-left: 33px;
+}
+
+.block {
+    margin: 22px;
+    padding: 22px;
+}
+
+.party-mode {
+    animation: party-party .6s ease-out;
+    animation-iteration-count: infinite;
+}
+
+.flex {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex > div {
+    margin-top: 0;
+    margin-right: 0;
+    width: calc(50% - 33px);
+}
+
+.darth-mode div {
+    color: #ffd700;
+}
+
+.darth-mode h3 {
+    color: #ffd700;
+}
+
+.darth-mode {
+    color: #ffd700;
+    background: #000 url(//cssanimation.rocks/demo/starwars/images/bg.jpg);
+    position: absolute;
+    width: 18em;
+    height: 50em;
+    bottom: 0;
+    left: 50%;
+    margin-left: -9em;
+    font-size: 350%;
+    font-weight: bold;
+    text-align: justify;
+    overflow: hidden;
+    transform-origin: 50% 100%;
+    transform: perspective(500px) rotateX(25deg);
+}
+
+@keyframes party-party {
+    0% {
+        background-color: purple;
+        transform: translate3d(0, 0, 0);
+    }
+
+    20% {
+        background-color: limegreen;
+        transform: translate3d(5px, 0, 0);
+    }
+
+    40% {
+        background-color: hotpink;
+        transform: translate3d(-5px, 0, 0);
+    }
+
+    60% {
+        background-color: blue;
+        transform: translate3d(3px, 0, 0);
+    }
+
+    80% {
+        background-color: coral;
+        transform: translate3d(-3px, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+        background-color: grey;
+    }
 }

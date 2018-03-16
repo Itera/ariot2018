@@ -1,17 +1,43 @@
 import React from 'react'
 import styles from './User.css'
+import { Card, CardHeader, CardText } from 'material-ui';
 
-const User = ({name, tempPref, tablePref}) => {
-  const {heightSitting, heightStanding} = tablePref;
+const calcTime = (range) => {
+  let sum = 0;
+
+  if (range == null) {
+    return sum;
+  }
+
+  range.forEach(time => {
+    const from = new Date(time.from);
+    const to = new Date(time.to);
+    sum += (to - from) / 3600000;
+  });
+
+  return sum.toFixed(2);
+};
+
+const User = ({ name, tempPref, tablePref, hours }) => {
+  const { heightSitting, heightStanding } = tablePref;
 
   return (
-    <div className={styles.user}>
-      <p>{name}</p>
-      <p>Temp. preference: {tempPref}</p>
-      <p>Table preferences:</p>
-      <p>Sitting: {heightSitting} cm.</p>
-      <p>Standing: {heightStanding} cm.</p>
-    </div>
+    <Card>
+      <CardHeader
+        title={name}
+        subtitle={calcTime(hours) + " hours"}
+        actAsExpander={true}
+        showExpandableButton={true}
+      />
+      <CardText expandable={true}>
+        <p>
+          <strong>Temp. preference:</strong> {tempPref} &deg;C<br />
+          <strong>Sitting:</strong> {heightSitting} cm <br />
+          <strong>Standing:</strong> {heightStanding} cm <br />
+          <strong>Hours:</strong> {calcTime(hours)}
+        </p>
+      </CardText>
+    </Card>
   )
 };
 
