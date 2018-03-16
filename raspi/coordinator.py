@@ -19,6 +19,7 @@ SANITY_API_KEY_FILE = 'sanity'
 # Seconds in each position before automatically changing
 TABLE_LOWER_TIME = 120
 TABLE_UPPER_TIME = 60
+CURRENT_TIMER = None
 
 card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
@@ -70,11 +71,15 @@ def make_post(body):
 
 def table_lower_position(table_preferences):
     tc_event_queue.put(table_preferences.get('heightStanding'))
-    Timer(TABLE_LOWER_TIME, table_upper_position, [table_preferences]).start()
+    global CURRENT_TIMER
+    CURRENT_TIMER = Timer(TABLE_LOWER_TIME, table_upper_position, [table_preferences])
+    CURRENT_TIMER.start()
 
 def table_upper_position(table_preferences):
     tc_event_queue.put(table_preferences.get('heightSitting'))
-    Timer(TABLE_UPPER_TIME, table_lower_position, [table_preferences]).start()
+    global CURRENT_TIMER
+    CURRENT_TIMER = Timer(TABLE_UPPER_TIME, table_lower_position, [table_preferences])
+    CURRENT_TIMER.start()
 
 def event_received(card_id, state):
     if not state.logged_in:
@@ -90,6 +95,7 @@ def event_received(card_id, state):
             state.log_in(query_result)
             table_lower_position(query_result.get('tablePreferences'))
     else:
+        CURRENT_TIMER.cancel()
         from_timestamp = state.logged_in_timestamp
         to_timestamp =  datetime.datetime.now()
         try:
