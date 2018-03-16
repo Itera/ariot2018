@@ -6,6 +6,7 @@ import time
 import sys
 import datetime
 import json
+import math
 
 # Special libraries
 from serial import Serial
@@ -33,6 +34,7 @@ DEBOUNCE = 1
 # Queues
 card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
+screen_event_queue = Queue(maxsize=0)
 
 # Timer
 deskTimer = DeskTimer()
@@ -123,7 +125,7 @@ def event_received(card_id, state):
         query_result = response.json().get('result')[0]
         if query_result is not None:
             setRGB(108, 180, 110)
-            setText('Hello ' + query_result.get('name') + '! :)')
+            screen_event_queue.put('Hello ' + query_result.get('name') + '! :)')
             state.log_in(query_result)
     else:
         deskTimer.stop()
@@ -167,7 +169,9 @@ def event_received(card_id, state):
                 ]
             }
             print(make_post(body))
+        screen_event_queue.put('Goodbye ' + state.sanity_data.get('name') + '! :)')
         state.log_out()
+
 
 class RFIDReader(Thread):
     def __init__(self, queue):
@@ -198,13 +202,29 @@ class TableControllerWriter(Thread):
                 print('writing to tablecontroller ' + data)
                 self.conn.write(data)
 
+class ScreenWriter(Thread):
+    def __init__(self, queue):
+        super(ScreenWriter, self).__init__()
+        self.queue = queue
+        self.shutdown_flag = Event()
+
+    def run(self):
+        while not self.shutdown_flag.is_set():
+            if not self.queue.empty():
+                text = str(self.queue.get())
+                print('Displaying ' + text)
+                setText(text)
+
+
 def main():
     state = DeskState()
     try:
         reader = RFIDReader(card_event_queue)
         tc_writer = TableControllerWriter(tc_event_queue)
+        screen_writer = ScreenWriter(screen_event_queue)
         reader.start()
         tc_writer.start()
+        screen_writer.start()
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
@@ -213,8 +233,10 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         reader.shutdown_flag.set()
         tc_writer.shutdown_flag.set()
+        screen_writer.shutdown_flag.set()
         reader.join()
         tc_writer.join()
+        screen_writer.join()
         print('\n Shutting down')
 
 main()
