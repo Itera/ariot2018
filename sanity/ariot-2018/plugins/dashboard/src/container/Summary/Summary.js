@@ -36,8 +36,8 @@ class Summary extends React.Component {
       display: "flex",
       alignItems: "center",
       flexDirection: "column",
-      justifyContent: "space-around",
-      borderRadius: "10px"
+      justifyContent: "space-between",
+      borderRadius: "5px"
     };
 
     const papers = [
@@ -48,7 +48,7 @@ class Summary extends React.Component {
     ];
 
     const items = papers.map(({text, number, color}, index) =>
-      <div style={{width: "250px"}}>
+      <div key={text} style={{width: "250px"}}>
         <Paper style={Object.assign({}, paperStyle, {backgroundColor: color})} key={index}>
           <div className="header">{text}</div>
           <div style={{fontSize: "36pt", verticalAlign: "middle"}}>{number}</div>

@@ -1,8 +1,8 @@
 import React from 'react'
 
 const logoStyle = {
-  "text-align": "center",
-  "font-size": "1.5em",
+  textAlign: "center",
+  fontSize: "1.5em",
 };
 
 const Logo = () => <div style={logoStyle}>Itera</div>;

@@ -2,7 +2,6 @@ import React from 'react'
 import {fetchPersons} from "../../forces/request";
 import styles from './UserList.css'
 import User from "../../components/User/User";
-import { List, ListItem } from 'material-ui';
 
 class UserList extends React.Component {
   constructor(props) {

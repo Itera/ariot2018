@@ -29,7 +29,8 @@
     "react": "^15.6",
     "react-chartjs-2": "^2.7.0",
     "react-dom": "^15.6",
-    "react-icons": "^2.2.5"
+    "react-icons": "^2.2.5",
+    "classnames": "^2.2.5"
   },
   "devDependencies": {}
 }
