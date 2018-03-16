@@ -69,14 +69,12 @@ def make_post(body):
     )
 
 def table_lower_position(table_preferences):
-    print("Go to lower pos")
     tc_event_queue.put(table_preferences.get('heightStanding'))
-    Timer(TABLE_LOWER_TIME, table_upper_position, table_preferences).start()
+    Timer(TABLE_LOWER_TIME, table_upper_position, [table_preferences]).start()
 
 def table_upper_position(table_preferences):
-    print("Go to upper pos")
     tc_event_queue.put(table_preferences.get('heightSitting'))
-    Timer(TABLE_UPPER_TIME, table_lower_position, table_preferences).start()
+    Timer(TABLE_UPPER_TIME, table_lower_position, [table_preferences]).start()
 
 def event_received(card_id, state):
     if not state.logged_in:
