@@ -13,6 +13,7 @@ SANITY_API_BASE = "https://k06fkcmv.api.sanity.io/v1/data/"
 SANITY_API_KEY_FILE = 'sanity'
 
 card_event_queue = Queue(maxsize=0)
+tc_event_queue = Queue(maxsize=0)
 
 class DeskState(object):
     logged_in = False
@@ -50,21 +51,26 @@ def make_get(query):
         SANITY_API_BASE + "query/production/",
         params={'query': query},
         headers=make_auth_header()
-    ).json().get('result', None)
+    )
 
 def make_post(body):
     return requests.post(
         SANITY_API_BASE + "mutate/production/?returnIds=false&returnDocuments=true&visibility=sync",
         json=body,
         headers=make_auth_header()
-    ).json()
+    )
 
 def event_received(card_id, state):
     if not state.logged_in:
         query = "*[_type == 'person' && id == '{}']".format(card_id)
-        query_result = make_get(query)[0]
+        response = make_get(query)
+        if response.status_code != 200 or len(response.json().get('result')) == 0:
+            print('No data for card')
+            return
+        query_result = response.json().get('result')[0]
         if query_result is not None:
             state.log_in(query_result)
+            tc_event_queue.put(query_result.get('tablePreferences').get('heightSitting'))
     else:
         from_timestamp = state.logged_in_timestamp
         to_timestamp =  datetime.datetime.now()
@@ -86,7 +92,7 @@ def event_received(card_id, state):
                     }
                 ]
             }
-            print(make_post(body))
+            make_post(body))
         except KeyError:
             body = {
                 "mutations": [
@@ -103,7 +109,7 @@ def event_received(card_id, state):
                     }
                 ]
             }
-            print(make_post(body))
+            make_post(body)
         state.log_out()
 
 class RFIDReader(Thread):
@@ -119,17 +125,37 @@ class RFIDReader(Thread):
             if data != '':
                 self.queue.put(data)
 
+class TableControllerWriter(Thread):
+    def __init__(self, queue):
+        super(TableControllerWriter, self).__init__()
+        self.queue = queue
+        self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
+        self.shutdown_flag = Event()
+        
+    def run(self):
+        while not self.shutdown_flag.is_set():
+            if not self.queue.empty():
+                data = str(self.queue.get())
+                if data[-1] != '\n':
+                    data = data + '\n'
+                print('writing to tablecontroller ' + data)
+                self.conn.write(data)
+
 def main():
     state = DeskState()
     try:
         reader = RFIDReader(card_event_queue)
+        tc_writer = TableControllerWriter(tc_event_queue)
         reader.start()
+        tc_writer.start()
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit, Exception):
         reader.shutdown_flag.set()
+        tc_writer.shutdown_flag.set()
         reader.join()
+        tc_writer.join()
         print('\n Shutting down')
 
 
