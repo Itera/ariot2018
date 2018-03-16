@@ -92,7 +92,7 @@ def event_received(card_id, state):
                     }
                 ]
             }
-            make_post(body))
+            print(make_post(body))
         except KeyError:
             body = {
                 "mutations": [
@@ -109,7 +109,7 @@ def event_received(card_id, state):
                     }
                 ]
             }
-            make_post(body)
+            print(make_post(body))
         state.log_out()
 
 class RFIDReader(Thread):
@@ -151,7 +151,7 @@ def main():
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
-    except (KeyboardInterrupt, SystemExit, Exception):
+    except (KeyboardInterrupt, SystemExit):
         reader.shutdown_flag.set()
         tc_writer.shutdown_flag.set()
         reader.join()
