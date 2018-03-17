@@ -31,12 +31,22 @@ tc_event_queue = Queue(maxsize=0)
 # Timer
 deskTimer = DeskTimer()
 
+# Buzzer
+busser_pin = 2
+pinMode(busser_pin, "OUTPUT")
+
+def buzz():
+    digitalWrite(busser_pin, 1)
+    time.sleep(0.1)
+    digitalWrite(busser_pin, 0)
+
 class DeskState(object):
     logged_in = False
     logged_in_timestamp = None
     sanity_data = {}
 
     def log_in(self, sanity_data):
+        buzz()
         self.sanity_data = sanity_data
         print(self.sanity_data)
         self.logged_in = True
@@ -44,6 +54,7 @@ class DeskState(object):
         print(sanity_data.get('id') + ' logged in')
 
     def log_out(self):
+        buzz()
         self.logged_in = False
         self.logged_in_timestamp = None
         print(self.sanity_data.get('id') + ' logged out')
