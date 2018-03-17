@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">GreatPlaceToWorkSPACE</string>
-    <string name="hold_a_tag_against_the_back_of_your_device">Hold a tag against the back of your device</string>
+    <string name="success_snackbar">Success!</string>
+    <string name="welcome_message">Hi! We can\'t wait to get you set up with your SmartDesk. To start, hold your ID card against the back of your device!</string>
+    <string name="initial_top_person_form">Hi %1$s! We can\'t wait to get to know you! Please tell us a bit about yourself and how you prefer your workspace to be set up.</string>
 </resources>

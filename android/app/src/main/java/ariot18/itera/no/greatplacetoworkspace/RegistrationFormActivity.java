@@ -9,28 +9,36 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.nfc.tech.MifareUltralight;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.StreamSupport;
 
 
 public class RegistrationFormActivity extends AppCompatActivity {
 
+    public static final String SANITY_RESPONSE = "no.itera.ariot18.greatplacetoworkspace.SANITY_RESPONSE";
+
     private TextView text;
+    private ProgressBar progressBar;
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
 
@@ -39,6 +47,7 @@ public class RegistrationFormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration_form);
         text = findViewById(R.id.text);
+        progressBar = findViewById(R.id.progressBar);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         resolveIntent(getIntent());
 
@@ -102,17 +111,21 @@ public class RegistrationFormActivity extends AppCompatActivity {
                 msgs = new NdefMessage[] {msg};
             }
 
-            displayMsgs(msgs);
             handle(NdefMessageParser.parse(msgs[0]));
         }
     }
 
     @TargetApi(Build.VERSION_CODES.N)
     private void handle(List<ParsedNdefRecord> records) {
-        String cardId = records.get(0).str().split("\n")[0].split(":")[1].replaceAll(" ", "");
-        JSONObject obj = SanityClient.getInstance(this.getApplicationContext()).getPerson(cardId);
-        System.out.println(obj.toString());
-        displayResponse(obj);
+        String cardId = records.get(0).str().split("\n")[1].split(":")[1].replaceAll(" ", "").toUpperCase();
+
+        new SanityClient(this).getPerson(cardId, json -> {
+            Intent intent = new Intent(this, PersonFormActivity.class);
+            Person p = Person.fromSanityResponse(json);
+            p.setId(cardId);
+            intent.putExtra(SANITY_RESPONSE, p);
+            startActivity(intent);
+        }, error -> System.out.println(error.toString()));
     }
 
     @TargetApi(Build.VERSION_CODES.N)
