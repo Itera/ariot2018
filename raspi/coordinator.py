@@ -54,7 +54,7 @@ class DeskState(object):
     logged_in = False
     logged_in_timestamp = None
     sanity_data = {}
-    position = None
+    position = LOWER
 
     def toggle_position(self):
         if self.position == LOWER:
@@ -73,11 +73,11 @@ class DeskState(object):
     def log_in(self, sanity_data):
         buzz()
         self.sanity_data = sanity_data
-        self.update_position()
         print(self.sanity_data)
         self.logged_in = True
         self.logged_in_timestamp = datetime.datetime.now()
         print(sanity_data.get('id') + ' logged in')
+        self.update_position()
 
     def log_out(self):
         buzz()
