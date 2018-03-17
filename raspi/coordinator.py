@@ -15,14 +15,20 @@ import requests
 
 # Local dependencies
 from deskTimer import DeskTimer
+from debounce import debounce
 
 SANITY_API_BASE = "https://k06fkcmv.api.sanity.io/v1/data/"
 SANITY_API_KEY_FILE = 'sanity'
 
 # Seconds in each position before automatically changing
 # ref: http://www.medicaldaily.com/try-sit-stand-formula-every-30-minutes-avoid-health-consequences-sitting-all-day-355250
-TABLE_LOWER_TIME = 1200 # 20 min
-TABLE_UPPER_TIME = 480 # 8 min
+UPPER = "heightStanding"
+LOWER = "heightSitting"
+POSITION_TIME = {
+    UPPER: 480, # 8 min
+    LOWER: 1200 # 20 min
+}
+DEBOUNCE = 10
 
 # Queues
 card_event_queue = Queue(maxsize=0)
@@ -35,6 +41,10 @@ deskTimer = DeskTimer()
 busser_pin = 2
 pinMode(busser_pin, "OUTPUT")
 
+# Button
+button = 4
+pinMode(button, "INPUT")
+
 def buzz():
     digitalWrite(busser_pin, 1)
     time.sleep(0.1)
@@ -44,10 +54,26 @@ class DeskState(object):
     logged_in = False
     logged_in_timestamp = None
     sanity_data = {}
+    position = None
+
+    def toggle_position(self):
+        if self.position == LOWER:
+            self.position = UPPER
+        else:
+            self.position = LOWER
+
+    @debounce(DEBOUNCE)
+    def update_position(self):
+        print("UPDATE POSITION")
+        deskTimer.stop()
+        self.toggle_position()
+        tc_event_queue.put(self.sanity_data.get('tablePreferences').get(self.position))
+        deskTimer.start(POSITION_TIME[self.position], self.update_position)
 
     def log_in(self, sanity_data):
         buzz()
         self.sanity_data = sanity_data
+        self.update_position()
         print(self.sanity_data)
         self.logged_in = True
         self.logged_in_timestamp = datetime.datetime.now()
@@ -87,14 +113,6 @@ def make_post(body):
         headers=make_auth_header()
     )
 
-def table_lower_position(table_preferences):
-    tc_event_queue.put(table_preferences.get('heightSitting'))
-    deskTimer.start(TABLE_LOWER_TIME, table_upper_position, [table_preferences])
-
-def table_upper_position(table_preferences):
-    tc_event_queue.put(table_preferences.get('heightStanding'))
-    deskTimer.start(TABLE_UPPER_TIME, table_lower_position, [table_preferences])
-
 def event_received(card_id, state):
     if not state.logged_in:
         query = "*[_type == 'person' && id == '{}']".format(card_id)
@@ -107,7 +125,6 @@ def event_received(card_id, state):
             setRGB(108, 180, 110)
             setText('Hello ' + query_result.get('name') + '! :)')
             state.log_in(query_result)
-            table_lower_position(query_result.get('tablePreferences'))
     else:
         deskTimer.stop()
         from_timestamp = state.logged_in_timestamp
@@ -156,7 +173,7 @@ class RFIDReader(Thread):
     def __init__(self, queue):
         super(RFIDReader, self).__init__()
         self.queue = queue
-        self.conn = Serial('/dev/ttyUSB0', 9600, 8, 'N', 1, timeout=1)
+        self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
 
     def run(self):
@@ -169,7 +186,7 @@ class TableControllerWriter(Thread):
     def __init__(self, queue):
         super(TableControllerWriter, self).__init__()
         self.queue = queue
-        self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
+        self.conn = Serial('/dev/ttyUSB0', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
 
     def run(self):
@@ -191,6 +208,8 @@ def main():
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
+            if digitalRead(button):
+                state.update_position()
     except (KeyboardInterrupt, SystemExit):
         reader.shutdown_flag.set()
         tc_writer.shutdown_flag.set()

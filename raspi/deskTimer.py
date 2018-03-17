@@ -3,9 +3,10 @@ from threading import Timer
 class DeskTimer(object):
     current_timer = None
 
-    def start(self, time, callback, args):
+    def start(self, time, callback, *args):
         self.current_timer = Timer(time, callback, args)
         self.current_timer.start()
 
     def stop(self):
-        self.current_timer.cancel()
+        if  self.current_timer != None:
+            self.current_timer.cancel()
