@@ -1,5 +1,6 @@
 package ariot18.itera.no.greatplacetoworkspace;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.nfc.NdefMessage;
@@ -8,14 +9,23 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.nfc.tech.MifareUltralight;
+import android.os.Build;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.StreamSupport;
 
 
 public class RegistrationFormActivity extends AppCompatActivity {
@@ -93,7 +103,31 @@ public class RegistrationFormActivity extends AppCompatActivity {
             }
 
             displayMsgs(msgs);
+            handle(NdefMessageParser.parse(msgs[0]));
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private void handle(List<ParsedNdefRecord> records) {
+        String cardId = records.get(0).str().split("\n")[0].split(":")[1].replaceAll(" ", "");
+        JSONObject obj = SanityClient.getInstance(this.getApplicationContext()).getPerson(cardId);
+        System.out.println(obj.toString());
+        displayResponse(obj);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private void displayResponse(JSONObject response) {
+        StringBuilder builder = new StringBuilder();
+        StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(response.keys(), Spliterator.ORDERED),
+                false).forEach(key -> {
+            try {
+                builder.append(response.get(key));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+        text.setText(builder.toString());
     }
 
     private void displayMsgs(NdefMessage[] msgs) {
