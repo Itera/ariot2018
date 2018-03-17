@@ -20,10 +20,23 @@ SANITY_API_KEY_FILE = 'sanity'
 # ref: http://www.medicaldaily.com/try-sit-stand-formula-every-30-minutes-avoid-health-consequences-sitting-all-day-355250
 TABLE_LOWER_TIME = 1200 # 20 min
 TABLE_UPPER_TIME = 480 # 8 min
-CURRENT_TIMER = None
 
+# Queues
 card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
+
+# Timer
+class DeskTimer(object):
+    current_timer = None
+
+    def start(self, time, callback, args):
+        self.current_timer = Timer(time, callback, args)
+        self.current_timer.start()
+
+    def stop(self):
+        self.current_timer.cancel()
+
+deskTimer = DeskTimer()
 
 class DeskState(object):
     logged_in = False
@@ -72,15 +85,11 @@ def make_post(body):
 
 def table_lower_position(table_preferences):
     tc_event_queue.put(table_preferences.get('heightSitting'))
-    global CURRENT_TIMER
-    CURRENT_TIMER = Timer(TABLE_LOWER_TIME, table_upper_position, [table_preferences])
-    CURRENT_TIMER.start()
+    deskTimer.start(TABLE_LOWER_TIME, table_upper_position, [table_preferences])
 
 def table_upper_position(table_preferences):
     tc_event_queue.put(table_preferences.get('heightStanding'))
-    global CURRENT_TIMER
-    CURRENT_TIMER = Timer(TABLE_UPPER_TIME, table_lower_position, [table_preferences])
-    CURRENT_TIMER.start()
+    deskTimer.start(TABLE_UPPER_TIME, table_lower_position, [table_preferences])
 
 def event_received(card_id, state):
     if not state.logged_in:
@@ -96,7 +105,7 @@ def event_received(card_id, state):
             state.log_in(query_result)
             table_lower_position(query_result.get('tablePreferences'))
     else:
-        CURRENT_TIMER.cancel()
+        deskTimer.stop()
         from_timestamp = state.logged_in_timestamp
         to_timestamp =  datetime.datetime.now()
         try:
