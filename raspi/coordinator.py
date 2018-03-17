@@ -57,7 +57,7 @@ class DeskState(object):
     logged_in = False
     logged_in_timestamp = None
     sanity_data = {}
-    position = LOWER
+    position = None
 
     def toggle_position(self):
         if self.position == LOWER:
@@ -180,7 +180,7 @@ class RFIDReader(Thread):
     def __init__(self, queue):
         super(RFIDReader, self).__init__()
         self.queue = queue
-        self.conn = Serial('/dev/ttyUSB0', 9600, 8, 'N', 1, timeout=1)
+        self.conn = Serial('/dev/ttyUSB2', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
 
     def run(self):
@@ -277,7 +277,7 @@ def main():
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
-            if digitalRead(button):
+            if state.logged_in and digitalRead(button):
                 state.update_position()
     except (KeyboardInterrupt, SystemExit):
         reader.shutdown_flag.set()
