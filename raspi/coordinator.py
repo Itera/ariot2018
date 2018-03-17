@@ -28,7 +28,7 @@ POSITION_TIME = {
     UPPER: 480, # 8 min
     LOWER: 1200 # 20 min
 }
-DEBOUNCE = 10
+DEBOUNCE = 1
 
 # Queues
 card_event_queue = Queue(maxsize=0)
