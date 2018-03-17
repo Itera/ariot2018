@@ -17,8 +17,9 @@ SANITY_API_BASE = "https://k06fkcmv.api.sanity.io/v1/data/"
 SANITY_API_KEY_FILE = 'sanity'
 
 # Seconds in each position before automatically changing
-TABLE_LOWER_TIME = 120
-TABLE_UPPER_TIME = 60
+# ref: http://www.medicaldaily.com/try-sit-stand-formula-every-30-minutes-avoid-health-consequences-sitting-all-day-355250
+TABLE_LOWER_TIME = 1200 # 20 min
+TABLE_UPPER_TIME = 480 # 8 min
 CURRENT_TIMER = None
 
 card_event_queue = Queue(maxsize=0)
