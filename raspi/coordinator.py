@@ -125,7 +125,7 @@ def event_received(card_id, state):
         query_result = response.json().get('result')[0]
         if query_result is not None:
             setRGB(108, 180, 110)
-            screen_event_queue.put('Hello ' + query_result.get('name') + '! :)')
+            screen_event_queue.put(('Hello ' + query_result.get('name') + '! :)', 3))
             state.log_in(query_result)
     else:
         deskTimer.stop()
@@ -169,7 +169,7 @@ def event_received(card_id, state):
                 ]
             }
             print(make_post(body))
-        screen_event_queue.put('Goodbye ' + state.sanity_data.get('name') + '! :)')
+        screen_event_queue.put(('Goodbye! :)', 3))
         state.log_out()
 
 
@@ -211,10 +211,14 @@ class ScreenWriter(Thread):
     def run(self):
         while not self.shutdown_flag.is_set():
             if not self.queue.empty():
-                text = str(self.queue.get())
-                print('Displaying ' + text)
-                setText(text)
-
+                try:
+                    item = self.queue.get()
+                    text = str(item[0])
+                    print('Displaying ' + text)
+                    setText(text)
+                    time.sleep(item[1])
+                except IOError as e:
+                    print "Error writing to screen"
 
 def main():
     state = DeskState()
