@@ -70,13 +70,13 @@ def make_post(body):
     )
 
 def table_lower_position(table_preferences):
-    tc_event_queue.put(table_preferences.get('heightStanding'))
+    tc_event_queue.put(table_preferences.get('heightSitting'))
     global CURRENT_TIMER
     CURRENT_TIMER = Timer(TABLE_LOWER_TIME, table_upper_position, [table_preferences])
     CURRENT_TIMER.start()
 
 def table_upper_position(table_preferences):
-    tc_event_queue.put(table_preferences.get('heightSitting'))
+    tc_event_queue.put(table_preferences.get('heightStanding'))
     global CURRENT_TIMER
     CURRENT_TIMER = Timer(TABLE_UPPER_TIME, table_lower_position, [table_preferences])
     CURRENT_TIMER.start()
