@@ -3,7 +3,7 @@ int UP = 2;
 int DOWN = 3;
 
 // TABLE CONSTS
-const int lowest = 77;
+const int lowest = 76;
 const int highest = 123;
 const float cmPerSecond = 4.9;
 const int timeFullMovement = 9500;
