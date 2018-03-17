@@ -35,6 +35,7 @@ DEBOUNCE = 1
 card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
 screen_event_queue = Queue(maxsize=0)
+temp_hum_event_queue = Queue(maxsize=0)
 
 # Timer
 deskTimer = DeskTimer()
@@ -127,6 +128,7 @@ def event_received(card_id, state):
             setRGB(108, 180, 110)
             screen_event_queue.put(('Hello ' + query_result.get('name') + '! :)', 3))
             state.log_in(query_result)
+            temp_hum_event_queue.put(state)
     else:
         deskTimer.stop()
         from_timestamp = state.logged_in_timestamp
@@ -171,13 +173,14 @@ def event_received(card_id, state):
             print(make_post(body))
         screen_event_queue.put(('Goodbye! :)', 3))
         state.log_out()
+        temp_hum_event_queue.put(state)
 
 
 class RFIDReader(Thread):
     def __init__(self, queue):
         super(RFIDReader, self).__init__()
         self.queue = queue
-        self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
+        self.conn = Serial('/dev/ttyUSB0', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
 
     def run(self):
@@ -190,7 +193,7 @@ class TableControllerWriter(Thread):
     def __init__(self, queue):
         super(TableControllerWriter, self).__init__()
         self.queue = queue
-        self.conn = Serial('/dev/ttyUSB0', 9600, 8, 'N', 1, timeout=1)
+        self.conn = Serial('/dev/ttyUSB1', 9600, 8, 'N', 1, timeout=1)
         self.shutdown_flag = Event()
 
     def run(self):
@@ -222,27 +225,38 @@ class ScreenWriter(Thread):
 
 
 class TemperatureHumidityMeasurer(Thread):
-    def __init__(self):
+    def __init__(self, queue, state):
         super(TemperatureHumidityMeasurer, self).__init__()
         self.shutdown_flag = Event()
+        self.queue = queue
+        self.state = state
 
     def run(self):
         dht_sensor_port = 7
         prev_temp, prev_hum = -1, -1
+        fan_port = 3
+        pinMode(fan_port, "OUPUT")
         while not self.shutdown_flag.is_set():
             try:
+                if not temp_hum_event_queue.empty():
+                    self.state = self.queue.get()
+
                 [temp, hum] = dht(dht_sensor_port, 0)
 
-                #pref_temp = state.sanity_data.get('tempPreferences') how to get this here?
-                #if temp > pref_temp:
-                #    print("Turning on the fan")
-                #elif temp < pref_temp:
-                #    print("Turning off the fan")
+                pref_temp = None
+                data = self.state.sanity_data
+                if data is not None:
+                    pref_temp = data.get("tempPreferences")
+
+                if pref_temp is None or temp < pref_temp:
+                    digitalWrite(fan_port, 0)
+                if pref_temp is not None and temp > pref_temp:
+                    digitalWrite(fan_port, 1)
 
                 if not (math.isnan(temp) or math.isnan(hum)):
                     if (temp > 0 and hum > 0):
                         if (temp != prev_temp or hum != prev_hum):
-                            text = "Temp: " + str(temp) + " C    Humidity: " + str(hum) + "%"
+                            text = "Temp: " + str(temp) + " C      Humidity: " + str(hum) + "%"
                             screen_event_queue.put((text, 1))
                 prev_temp, prev_hum = temp, hum
             except (IOError, TypeError) as e:
@@ -255,7 +269,7 @@ def main():
         reader = RFIDReader(card_event_queue)
         tc_writer = TableControllerWriter(tc_event_queue)
         screen_writer = ScreenWriter(screen_event_queue)
-        temp_hum = TemperatureHumidityMeasurer()
+        temp_hum = TemperatureHumidityMeasurer(temp_hum_event_queue, state)
         reader.start()
         tc_writer.start()
         screen_writer.start()
