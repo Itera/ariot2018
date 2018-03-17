@@ -220,15 +220,46 @@ class ScreenWriter(Thread):
                 except IOError as e:
                     print "Error writing to screen"
 
+
+class TemperatureHumidityMeasurer(Thread):
+    def __init__(self):
+        super(TemperatureHumidityMeasurer, self).__init__()
+        self.shutdown_flag = Event()
+
+    def run(self):
+        dht_sensor_port = 7
+        prev_temp, prev_hum = -1, -1
+        while not self.shutdown_flag.is_set():
+            try:
+                [temp, hum] = dht(dht_sensor_port, 0)
+
+                #pref_temp = state.sanity_data.get('tempPreferences') how to get this here?
+                #if temp > pref_temp:
+                #    print("Turning on the fan")
+                #elif temp < pref_temp:
+                #    print("Turning off the fan")
+
+                if not (math.isnan(temp) or math.isnan(hum)):
+                    if (temp > 0 and hum > 0):
+                        if (temp != prev_temp or hum != prev_hum):
+                            text = "Temp: " + str(temp) + " C    Humidity: " + str(hum) + "%"
+                            screen_event_queue.put((text, 1))
+                prev_temp, prev_hum = temp, hum
+            except (IOError, TypeError) as e:
+                print "Error reading temperature and humidity"
+            time.sleep(1)
+
 def main():
     state = DeskState()
     try:
         reader = RFIDReader(card_event_queue)
         tc_writer = TableControllerWriter(tc_event_queue)
         screen_writer = ScreenWriter(screen_event_queue)
+        temp_hum = TemperatureHumidityMeasurer()
         reader.start()
         tc_writer.start()
         screen_writer.start()
+        temp_hum.start()
         while True:
             if not card_event_queue.empty():
                 event_received(card_event_queue.get(), state)
@@ -238,9 +269,11 @@ def main():
         reader.shutdown_flag.set()
         tc_writer.shutdown_flag.set()
         screen_writer.shutdown_flag.set()
+        temp_hum.shutdown_flag.set()
         reader.join()
         tc_writer.join()
         screen_writer.join()
+        temp_hum.join()
         print('\n Shutting down')
 
 main()
