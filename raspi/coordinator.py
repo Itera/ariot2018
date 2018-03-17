@@ -13,6 +13,9 @@ from grovepi import *
 from grove_rgb_lcd import *
 import requests
 
+# Local dependencies
+from deskTimer import DeskTimer
+
 SANITY_API_BASE = "https://k06fkcmv.api.sanity.io/v1/data/"
 SANITY_API_KEY_FILE = 'sanity'
 
@@ -26,16 +29,6 @@ card_event_queue = Queue(maxsize=0)
 tc_event_queue = Queue(maxsize=0)
 
 # Timer
-class DeskTimer(object):
-    current_timer = None
-
-    def start(self, time, callback, args):
-        self.current_timer = Timer(time, callback, args)
-        self.current_timer.start()
-
-    def stop(self):
-        self.current_timer.cancel()
-
 deskTimer = DeskTimer()
 
 class DeskState(object):
